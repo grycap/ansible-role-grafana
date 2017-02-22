@@ -1,0 +1,105 @@
+---
+- name: Create the system groups
+  group:
+    name: "grafana"
+    state: "present"
+    system: "yes"
+
+- name: Create system users
+  user:
+    name: "{{ grafana_system_user_name}}"
+    group: "{{ grafana_system_group_name }}"
+    comment: "{{ grafana_system_comment }}"
+    shell: "{{ grafana_system_shell }}"
+    system: "yes"
+    createhome: "no"
+    home: "{{ grafana_system_user_home }}"
+  with_items:
+    - name: "grafana"
+      group: "grafana"
+      comment: "Grafana system user"
+      createhome: "no"
+
+- name: Create dirs
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - { path: "/opt/grafana-build", mode: "0755", owner: "root", group: "root" }
+    - { path: "/etc/grafana", mode: "0775", owner: "root", group: "root" }
+    - { path: "/var/lib/grafana", mode: "0775", owner: "grafana", group: "grafana" }
+    - { path: "/var/lib/grafana/plugins", mode: "0775", owner: "grafana", group: "grafana" }
+    - { path: "/var/log/grafana", mode: "0775", owner: "grafana", group: "grafana" }
+
+- name: Download golang
+  get_url:
+    url: "https://storage.googleapis.com/golang/go{{ go_version }}.linux-amd64.tar.gz"
+    dest: "/root/go{{ go_version }}.linux-amd64.tar.gz"
+    mode: 0440
+
+- name: Unarchive golang
+  unarchive:
+    src: "/root/go{{ go_version }}.linux-amd64.tar.gz"
+    dest: "/usr/local"
+    creates: "/usr/local/go"
+    copy: "no"
+
+- name: Clone grafana git repositories
+  git:
+    repo: "{{ item.repo }}"
+    dest: "{{ item.dest }}"
+    version: "{{ item.version }}"
+    force: "yes"
+  with_items:
+    - repo: "{{ grafana_datasource_git_repo }}"
+      dest: "/var/lib/grafana/plugins"
+      version: "{{ grafana_datasource_git_branch }}"
+    - repo: "{{ grafana_git_repo }}"
+      dest: "/opt/cloned-repos/grafana"
+      version: "{{ grafana_git_branch }}"
+
+- name: Copy grafana install script
+  template:
+    src: "install_grafana.sh.j2"
+    dest: "/opt/grafana-build/install_grafana.sh"
+    mode: "0750"
+  register: grafana_script
+
+- name: Install grafana
+  command: "./install_grafana.sh"
+  args:
+    chdir: "/opt/grafana-build"
+  when: grafana_script.changed
+
+- name: Drop grafana Config(s)
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode|default('0644') }}"
+  with_items:
+    - src: "grafana-server.service.j2"
+      dest: "/etc/systemd/system/grafana-server.service"
+      owner: "root"
+      group: "root"
+      mode: "0644"
+    - src: "grafana.ini.j2"
+      dest: "/etc/grafana/grafana.ini"
+      owner: "root"
+      group: "root"
+  register: grafana_config
+
+- name: Ensure grafana launches on boot
+  service:
+    name: "grafana-server"
+    enabled: "yes"
+
+- name: Restart grafana
+  service:
+    name: "grafana-server"
+    state: "restarted"
+  when: grafana_config.changed

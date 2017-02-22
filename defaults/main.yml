@@ -1,0 +1,18 @@
+---
+## Grafana
+grafana_datasource_git_repo: "https://github.com/openstack/monasca-grafana-datasource.git"
+grafana_datasource_git_branch: "master"
+grafana_git_repo: "https://github.com/twc-openstack/grafana.git"
+grafana_git_branch: "master-keystone"
+## Keystone
+keystone_ip_address: "127.0.0.1"
+## Go
+go_version: "1.7.1"
+## NodeJS
+node_js_version: "4.0.0"
+## System info
+grafana_system_user_name: grafana
+grafana_system_group_name: grafana
+grafana_system_comment: Grafana system user
+grafana_system_shell: /bin/false
+grafana_system_user_home: "/var/lib/{{ grafana_system_user_name }}"
