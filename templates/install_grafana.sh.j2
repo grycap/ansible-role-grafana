@@ -11,7 +11,7 @@ cp /opt/cloned-repos/monasca-ui/grafana-dashboards/* ./public/dashboards/
 
 go run build.go build
 
-source /root/.nvm/nvm.sh
+source $HOME/.nvm/nvm.sh
 nvm install {{ node_js_version }}
 nvm use {{ node_js_version }}
 npm config set unsafe-perm true
