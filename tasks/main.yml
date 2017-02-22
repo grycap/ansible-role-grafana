@@ -50,12 +50,12 @@
 - name: Download NVM install script
   get_url:
     url: "https://raw.githubusercontent.com/creationix/nvm/v{{ nvm_version }}/install.sh"
-    dest: "/home/ubuntu/nvm_install.sh"
+    dest: "/tmp/nvm_install.sh"
     mode: 0750
   register: nvm_script
 
 - name: Run NVM install script
-  command: "/home/ubuntu/nvm_install.sh"
+  command: "/tmp/nvm_install.sh"
   when: nvm_script.changed
 
 - name: Install required packages

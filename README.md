@@ -20,11 +20,11 @@ Variables used in this role:
 	## Keystone
 	keystone_ip_address: "127.0.0.1"
 	## Go
-	go_version: "1.7.1"
+	go_version: "1.8"
 	## NodeJS
-	node_js_version: "4.0.0"
+	node_js_version: "7.6.0"
 	## NVM
-	nvm_version: "0.32.1"
+	nvm_version: "0.33.1"
 	## System info
 	grafana_system_user_name: grafana
 	grafana_system_group_name: grafana
