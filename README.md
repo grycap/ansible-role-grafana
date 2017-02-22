@@ -1,2 +1,43 @@
-# ansible-role-grafana
-Install Grafana
+[![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![Build Status](https://travis-ci.org/grycap/ansible-role-grafana.svg?branch=master)](https://travis-ci.org/grycap/ansible-role-grafana)
+
+Grafana Role
+===================
+
+Install Grafana (Only supported Ubuntu 16)
+
+Role Variables
+--------------
+
+Variables used in this role:
+
+	## Grafana
+	grafana_datasource_git_repo: "https://github.com/openstack/monasca-grafana-datasource.git"
+	grafana_datasource_git_branch: "master"
+	grafana_git_repo: "https://github.com/twc-openstack/grafana.git"
+	grafana_git_branch: "master-keystone"
+	## Keystone
+	keystone_ip_address: "127.0.0.1"
+	## Go
+	go_version: "1.7.1"
+	## NodeJS
+	node_js_version: "4.0.0"
+	## System info
+	grafana_system_user_name: grafana
+	grafana_system_group_name: grafana
+	grafana_system_comment: Grafana system user
+	grafana_system_shell: /bin/false
+	grafana_system_user_home: "/var/lib/{{ grafana_system_user_name }}"
+
+Example Playbook
+----------------
+```
+- hosts: server
+  roles:
+  - { role: 'grycap.grafana' }
+```
+
+Contributing to the role
+========================
+In order to keep the code clean, pushing changes to the master branch has been disabled. If you want to contribute, you have to create a branch, upload your changes and then create a pull request.  
+Thanks
