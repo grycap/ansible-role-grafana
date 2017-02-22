@@ -47,6 +47,11 @@
     creates: "/usr/local/go"
     copy: "no"
 
+- name: Install git
+  apt:
+    name: git
+    state: present
+
 - name: Clone grafana git repositories
   git:
     repo: "{{ item.repo }}"
