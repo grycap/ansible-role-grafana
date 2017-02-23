@@ -60,7 +60,7 @@
 
 - name: Install required packages
   apt:
-    name: git,npm
+    name: git
     state: present
     update_cache: yes
     install_recommends: no
