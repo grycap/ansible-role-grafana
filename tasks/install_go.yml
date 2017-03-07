@@ -1,0 +1,13 @@
+---
+- name: Download golang
+  get_url:
+    url: "https://storage.googleapis.com/golang/go{{ go_version }}.linux-amd64.tar.gz"
+    dest: "/root/go{{ go_version }}.linux-amd64.tar.gz"
+    mode: 0440
+
+- name: Unarchive golang
+  unarchive:
+    src: "/root/go{{ go_version }}.linux-amd64.tar.gz"
+    dest: "/usr/local"
+    creates: "/usr/local/go"
+    copy: "no"

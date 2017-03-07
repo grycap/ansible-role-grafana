@@ -1,9 +1,19 @@
 ---
+- name: Install go
+  include: "install_go.yml"
+
+- name: Install nvm
+  include: "install_nvm.yml"
+
+- name: Install git
+  apt: name="git" state="present" update_cache="yes"
+
 - name: Create the system groups
   group:
     name: "grafana"
     state: "present"
     system: "yes"
+  register: grafana_group_created
 
 - name: Create system users
   user:
@@ -14,11 +24,7 @@
     system: "yes"
     createhome: "no"
     home: "{{ grafana_system_user_home }}"
-  with_items:
-    - name: "grafana"
-      group: "grafana"
-      comment: "Grafana system user"
-      createhome: "no"
+  when: grafana_group_created.changed
 
 - name: Create dirs
   file:
@@ -33,36 +39,6 @@
     - { path: "/var/lib/grafana", mode: "0775", owner: "grafana", group: "grafana" }
     - { path: "/var/lib/grafana/plugins", mode: "0775", owner: "grafana", group: "grafana" }
     - { path: "/var/log/grafana", mode: "0775", owner: "grafana", group: "grafana" }
-
-- name: Download golang
-  get_url:
-    url: "https://storage.googleapis.com/golang/go{{ go_version }}.linux-amd64.tar.gz"
-    dest: "/root/go{{ go_version }}.linux-amd64.tar.gz"
-    mode: 0440
-
-- name: Unarchive golang
-  unarchive:
-    src: "/root/go{{ go_version }}.linux-amd64.tar.gz"
-    dest: "/usr/local"
-    creates: "/usr/local/go"
-    copy: "no"
-
-- name: Download NVM install script
-  get_url:
-    url: "https://raw.githubusercontent.com/creationix/nvm/v{{ nvm_version }}/install.sh"
-    dest: "/tmp/nvm_install.sh"
-    mode: 0750
-  register: nvm_script
-
-- name: Run NVM install script
-  command: "/tmp/nvm_install.sh"
-  when: nvm_script.changed
-
-- name: Install required packages
-  apt:
-    name: git
-    state: present
-    update_cache: yes
 
 - name: Clone grafana git repositories
   git:
